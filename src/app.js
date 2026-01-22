@@ -13,8 +13,7 @@ const transactionRoutes = require("./modules/transactions/transaction.routes");
 const { apiLimiter } = require("./middlewares/rateLimit");
 const errorHandler = require("./middlewares/error");
 
-const swaggerUi = require("swagger-ui-express");
-const YAML = require("yamljs");
+const swaggerUiDist = require("swagger-ui-dist");
 
 const app = express();
 
@@ -25,13 +24,25 @@ app.use(morgan("dev"));
 
 app.use(apiLimiter);
 
-const swaggerPath = path.join(__dirname, "docs", "swagger.yaml");
-if (fs.existsSync(swaggerPath)) {
-  const swaggerDocument = YAML.load(swaggerPath);
-  app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+const swaggerYamlPath = path.join(__dirname, "docs", "swagger.yaml");
+const swaggerHtmlPath = path.join(__dirname, "docs", "swagger.html");
+
+app.use("/docs", express.static(swaggerUiDist.getAbsoluteFSPath()));
+
+if (fs.existsSync(swaggerYamlPath)) {
+  app.use("/docs/swagger.yaml", express.static(swaggerYamlPath));
 } else {
-  console.warn("Swagger file not found at:", swaggerPath);
+  console.warn("Swagger YAML not found at:", swaggerYamlPath);
 }
+
+app.get("/docs", (req, res) => {
+  if (fs.existsSync(swaggerHtmlPath)) {
+    return res.sendFile(swaggerHtmlPath);
+  }
+  return res
+    .status(500)
+    .send("swagger.html not found. Please create src/docs/swagger.html");
+});
 
 app.get("/health", (req, res) => {
   res.status(200).json({ success: true, message: "API is running" });
