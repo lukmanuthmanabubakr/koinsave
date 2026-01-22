@@ -325,6 +325,7 @@ components:
         amount:
           type: number
           example: 250
+          description: Amount in naira (NGN)
 
     TransferSuccessResponse:
       type: object
