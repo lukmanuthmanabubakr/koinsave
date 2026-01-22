@@ -2,7 +2,6 @@ const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
 const morgan = require("morgan");
-
 const path = require("path");
 
 const authRoutes = require("./modules/auth/auth.routes");
@@ -11,8 +10,6 @@ const transactionRoutes = require("./modules/transactions/transaction.routes");
 
 const { apiLimiter } = require("./middlewares/rateLimit");
 const errorHandler = require("./middlewares/error");
-
-const swaggerUiDist = require("swagger-ui-dist");
 
 const app = express();
 
@@ -23,8 +20,8 @@ app.use(morgan("dev"));
 
 app.use(apiLimiter);
 
-app.use("/docs", express.static(swaggerUiDist.getAbsoluteFSPath()));
-app.use("/docs", express.static(path.join(__dirname, "docs")));
+app.use("/", express.static(path.join(__dirname, "docs")));
+
 app.get("/docs", (req, res) => {
   res.sendFile(path.join(__dirname, "docs", "swagger.html"));
 });
