@@ -4,7 +4,6 @@ const helmet = require("helmet");
 const morgan = require("morgan");
 
 const path = require("path");
-const fs = require("fs");
 
 const authRoutes = require("./modules/auth/auth.routes");
 const walletRoutes = require("./modules/wallet/wallet.routes");
@@ -17,31 +16,17 @@ const swaggerUiDist = require("swagger-ui-dist");
 
 const app = express();
 
-app.use(helmet());
+app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors());
 app.use(express.json());
 app.use(morgan("dev"));
 
 app.use(apiLimiter);
 
-const swaggerYamlPath = path.join(__dirname, "docs", "swagger.yaml");
-const swaggerHtmlPath = path.join(__dirname, "docs", "swagger.html");
-
 app.use("/docs", express.static(swaggerUiDist.getAbsoluteFSPath()));
-
-if (fs.existsSync(swaggerYamlPath)) {
-  app.use("/docs/swagger.yaml", express.static(swaggerYamlPath));
-} else {
-  console.warn("Swagger YAML not found at:", swaggerYamlPath);
-}
-
+app.use("/docs", express.static(path.join(__dirname, "docs")));
 app.get("/docs", (req, res) => {
-  if (fs.existsSync(swaggerHtmlPath)) {
-    return res.sendFile(swaggerHtmlPath);
-  }
-  return res
-    .status(500)
-    .send("swagger.html not found. Please create src/docs/swagger.html");
+  res.sendFile(path.join(__dirname, "docs", "swagger.html"));
 });
 
 app.get("/health", (req, res) => {
