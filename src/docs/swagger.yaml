@@ -9,8 +9,11 @@ info:
     - Mock transfer between users
     - Transaction recording
 servers:
+  - url: https://koinsave.vercel.app
+    description: Production (Vercel)
   - url: http://localhost:4040
-    description: Local server
+    description: Local development
+
 
 tags:
   - name: Health
